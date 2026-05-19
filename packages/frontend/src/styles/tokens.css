@@ -1,0 +1,82 @@
+/* tokens.css
+ * Mac Terminal design tokens. Pro (dark) is the default; Basic (light) is
+ * activated by adding [data-theme="light"] on the document root.
+ */
+
+@theme {
+  --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+:root,
+[data-theme='dark'] {
+  /* Terminal */
+  --color-term-bg: #1e1e1e;
+  --color-term-bg-translucent: rgba(30, 30, 30, 0.86);
+  --color-term-fg: #e5e5e5;
+  --color-term-muted: #8e8e93;
+  --color-term-prompt-user: #7ee787;
+  --color-term-prompt-path: #79c0ff;
+  --color-term-prompt-arrow: #a371f7;
+  --color-term-prompt-git: #f2cc60;
+  --color-term-prompt-dirty: #f85149;
+  --color-term-link: #79c0ff;
+  --color-term-accent: #ffa657;
+  --color-term-success: #7ee787;
+  --color-term-warn: #f2cc60;
+  --color-term-error: #f85149;
+  --color-term-selection: rgba(121, 192, 255, 0.3);
+
+  /* Window chrome */
+  --color-window-titlebar: #3a3a3c;
+  --color-window-titlebar-fg: #d1d1d6;
+  --color-window-border: rgba(255, 255, 255, 0.08);
+
+  /* Traffic lights */
+  --color-traffic-close: #ff5f57;
+  --color-traffic-min: #febc2e;
+  --color-traffic-zoom: #28c840;
+  --color-traffic-idle: #595959;
+
+  /* Desktop chrome */
+  --color-menubar-bg: rgba(30, 30, 30, 0.6);
+  --color-menubar-fg: #f2f2f7;
+  --color-dock-bg: rgba(50, 50, 50, 0.45);
+  --color-dock-border: rgba(255, 255, 255, 0.12);
+  --color-wallpaper-from: #1b2a4e;
+  --color-wallpaper-to: #5e3b76;
+}
+
+[data-theme='light'] {
+  --color-term-bg: #ffffff;
+  --color-term-bg-translucent: rgba(255, 255, 255, 0.86);
+  --color-term-fg: #1d1d1f;
+  --color-term-muted: #6e6e73;
+  --color-term-prompt-user: #1a7f37;
+  --color-term-prompt-path: #0969da;
+  --color-term-prompt-arrow: #8250df;
+  --color-term-prompt-git: #9a6700;
+  --color-term-prompt-dirty: #cf222e;
+  --color-term-link: #0969da;
+  --color-term-accent: #bc4c00;
+  --color-term-success: #1a7f37;
+  --color-term-warn: #9a6700;
+  --color-term-error: #cf222e;
+  --color-term-selection: rgba(9, 105, 218, 0.2);
+
+  --color-window-titlebar: #e8e8ed;
+  --color-window-titlebar-fg: #1d1d1f;
+  --color-window-border: rgba(0, 0, 0, 0.08);
+
+  --color-traffic-close: #ff5f57;
+  --color-traffic-min: #febc2e;
+  --color-traffic-zoom: #28c840;
+  --color-traffic-idle: #c7c7cc;
+
+  --color-menubar-bg: rgba(245, 245, 247, 0.7);
+  --color-menubar-fg: #1d1d1f;
+  --color-dock-bg: rgba(255, 255, 255, 0.55);
+  --color-dock-border: rgba(0, 0, 0, 0.1);
+  --color-wallpaper-from: #a2d2ff;
+  --color-wallpaper-to: #ffc8dd;
+}

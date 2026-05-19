@@ -1,0 +1,42 @@
+{
+  "menu": {
+    "apple": "",
+    "app": "Terminal",
+    "file": "File",
+    "edit": "Edit",
+    "view": "View",
+    "window": "Window",
+    "help": "Help"
+  },
+  "dock": {
+    "terminal": "Terminal",
+    "finder": "Finder",
+    "mail": "Mail",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "cv": "CV"
+  },
+  "terminal": {
+    "title": "{{user}}@portfolio — -zsh — 120×30",
+    "bootLogin": "Last login: {{date}} on ttys001",
+    "bootTagline": "Welcome. Type `help` to list available commands.",
+    "unknown": "zsh: command not found: {{cmd}}",
+    "usage": "Usage: {{usage}}",
+    "fileNotFound": "cat: {{name}}: No such file or directory",
+    "noSuchDir": "ls: {{name}}: No such file or directory",
+    "langChanged": "Language: {{lang}}",
+    "themeChanged": "Theme: {{theme}}",
+    "downloading": "Downloading CV…",
+    "openingTarget": "Opening {{target}}…",
+    "sudo": "Sorry, {{user}} is not allowed to execute that. This incident will be reported.",
+    "rm": "Nice try. Refusing.",
+    "vim": "^C — to exit Vim, just reboot the machine 🙂"
+  },
+  "help": {
+    "header": "Available commands:",
+    "footer": "Tip: use ↑/↓ for history and Tab for autocompletion."
+  },
+  "errors": {
+    "load": "Unable to load portfolio data."
+  }
+}

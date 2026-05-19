@@ -1,0 +1,110 @@
+// schema.prisma
+// Portfolio domain. Localized text fields are stored as JSONB columns
+// shaped { fr: string, en: string } and validated at the application layer.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  name      String
+  title     Json
+  summary   Json
+  email     String   @unique
+  phone     String?
+  location  Json
+  socials   Json     @default("{}")
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Experience {
+  id        String   @id @default(cuid())
+  company   String
+  role      Json
+  location  Json
+  startDate String
+  endDate   String?
+  current   Boolean  @default(false)
+  bullets   Json     @default("[]")
+  tech      String[] @default([])
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([company, startDate])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  role        Json
+  startDate   String
+  endDate     String?
+  description Json
+  tech        String[] @default([])
+  links       Json     @default("[]")
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name, startDate])
+}
+
+enum SkillCategory {
+  mobile
+  backend
+  frontend
+  database
+  devops
+  management
+  language
+}
+
+model Skill {
+  id        String        @id @default(cuid())
+  category  SkillCategory
+  name      String
+  level     Int?
+  order     Int           @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([category, name])
+}
+
+model Education {
+  id        String   @id @default(cuid())
+  school    String
+  degree    Json
+  startDate String
+  endDate   String?
+  location  Json
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([school, startDate])
+}
+
+model Interest {
+  id        String   @id @default(cuid())
+  label     Json
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

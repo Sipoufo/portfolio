@@ -1,0 +1,42 @@
+{
+  "menu": {
+    "apple": "",
+    "app": "Terminal",
+    "file": "Fichier",
+    "edit": "Édition",
+    "view": "Présentation",
+    "window": "Fenêtre",
+    "help": "Aide"
+  },
+  "dock": {
+    "terminal": "Terminal",
+    "finder": "Finder",
+    "mail": "Mail",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "cv": "CV"
+  },
+  "terminal": {
+    "title": "{{user}}@portfolio — -zsh — 120×30",
+    "bootLogin": "Last login: {{date}} on ttys001",
+    "bootTagline": "Bienvenue. Tape `help` pour voir les commandes disponibles.",
+    "unknown": "zsh: command not found: {{cmd}}",
+    "usage": "Utilisation : {{usage}}",
+    "fileNotFound": "cat: {{name}}: aucun fichier ou dossier de ce nom",
+    "noSuchDir": "ls: {{name}}: aucun fichier ou dossier de ce nom",
+    "langChanged": "Langue : {{lang}}",
+    "themeChanged": "Thème : {{theme}}",
+    "downloading": "Téléchargement du CV…",
+    "openingTarget": "Ouverture de {{target}}…",
+    "sudo": "Désolé, {{user}} ne peut pas exécuter cette commande. Cet incident sera signalé.",
+    "rm": "Bien essayé. Je refuse.",
+    "vim": "^C — pour quitter Vim, redémarre la machine 🙂"
+  },
+  "help": {
+    "header": "Commandes disponibles :",
+    "footer": "Astuce : utilise ↑/↓ pour l'historique et Tab pour l'autocomplétion."
+  },
+  "errors": {
+    "load": "Impossible de charger les données du portfolio."
+  }
+}

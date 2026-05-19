@@ -1,0 +1,46 @@
+# docker-compose.yml
+# Containers join the Nginx Proxy Manager (NPM) network so NPM can reverse-proxy
+# to them by container name. Nothing is published on host ports — all traffic
+# arrives via NPM (which terminates HTTPS for printmarksgraphics.cloud).
+#
+#   - web : built React SPA served by Nginx on container port 80
+#   - api : Express backend on container port 3001
+#
+# Set NPM_NETWORK in .env to the actual Nginx Proxy Manager network name
+# (find it with: docker network ls).
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+      args:
+        VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_DEADLINE_ISO: ${VITE_DEADLINE_ISO:-}
+    image: hc-web:latest
+    container_name: hc-web
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks: [hc, npm]
+
+  api:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    image: hc-api:latest
+    container_name: hc-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - "3001"
+    networks: [hc, npm]
+
+networks:
+  hc:
+    driver: bridge
+  npm:
+    external: true
+    name: ${NPM_NETWORK:-nginx-proxy-manager_default}

@@ -1,0 +1,79 @@
+# docker-compose.yml
+# - web : built React SPA served by Nginx on container port 80
+# - api : Express backend on container port 3001
+# - db  : Postgres 16 on container port 5432 (internal only)
+#
+# web + api join the external NPM network so Nginx Proxy Manager can reach
+# them by container name. db stays on the internal bridge.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+      args:
+        VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+    image: portfolio-web:latest
+    container_name: portfolio-web
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks: [portfolio, npm]
+
+  api:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    image: portfolio-api:latest
+    container_name: portfolio-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override DATABASE_URL so the api container reaches Postgres by its
+      # docker service name, regardless of what's in .env (which targets
+      # localhost for host-side dev / migrations).
+      DATABASE_URL: postgresql://${POSTGRES_USER:-portfolio}:${POSTGRES_PASSWORD:-portfolio}@portfolio-db:5432/${POSTGRES_DB:-portfolio}?schema=public
+    expose:
+      - "3001"
+    volumes:
+      # Persists the admin-uploaded CV across container rebuilds.
+      - portfolio-storage:/app/packages/backend/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [portfolio, npm]
+
+  db:
+    image: postgres:16-alpine
+    container_name: portfolio-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-portfolio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-portfolio}
+      POSTGRES_DB: ${POSTGRES_DB:-portfolio}
+    # Bind only on the loopback interface so host-side tools (Prisma migrate
+    # from your laptop, psql, DBeaver…) can reach Postgres on localhost:5432
+    # without exposing the database publicly.
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - portfolio-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-portfolio} -d ${POSTGRES_DB:-portfolio}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [portfolio]
+
+volumes:
+  portfolio-db:
+  portfolio-storage:
+
+networks:
+  portfolio:
+    driver: bridge
+  npm:
+    external: true
+    name: ${NPM_NETWORK:-nginx-proxy-manager_default}
