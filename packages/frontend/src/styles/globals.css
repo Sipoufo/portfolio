@@ -27,6 +27,36 @@ body {
   border-radius: 2px;
 }
 
+/* Terminal input: no focus ring, no native caret — uses a custom block cursor. */
+.term-input,
+.term-input:focus,
+.term-input:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  caret-color: transparent;
+}
+
+.term-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  vertical-align: text-bottom;
+  background: var(--color-term-fg);
+  margin-left: 1px;
+  animation: term-blink 1s steps(1) infinite;
+}
+.term-cursor.is-idle {
+  background: transparent;
+  outline: 1px solid var(--color-term-fg);
+  outline-offset: -1px;
+}
+
+@keyframes term-blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
 /* Custom scrollbar inside the terminal body. */
 .term-scroll::-webkit-scrollbar {
   width: 10px;

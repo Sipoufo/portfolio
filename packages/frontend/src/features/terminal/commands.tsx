@@ -204,15 +204,18 @@ const interestsLines = (ctx: CommandContext): OutputLine[] => {
 const help: TerminalCommand = {
   name: 'help',
   descriptionKey: 'List all commands',
+  tip: { fr: 'Liste toutes les commandes avec un Tip pour chacune.', en: 'List every command with a Tip for each.' },
   run: (ctx) => {
     const visible = Object.values(COMMANDS).filter((c) => !c.hidden);
-    return [
+    const out: OutputLine[] = [
       line(
         <span style={{ color: 'var(--color-term-success)' }}>
           {ctx.lang === 'fr' ? 'Commandes disponibles :' : 'Available commands:'}
         </span>,
       ),
-      ...visible.map((c) =>
+    ];
+    for (const c of visible) {
+      out.push(
         line(
           <span>
             <span style={{ color: 'var(--color-term-prompt-path)', display: 'inline-block', minWidth: 110 }}>
@@ -221,8 +224,21 @@ const help: TerminalCommand = {
             <Muted>{HELP_DESCRIPTIONS[c.name]?.[ctx.lang] ?? c.descriptionKey}</Muted>
           </span>,
         ),
-      ),
-      blank(),
+      );
+      const tip = c.tip?.[ctx.lang];
+      if (tip) {
+        out.push(
+          line(
+            <span style={{ paddingLeft: 110, display: 'inline-block' }}>
+              <span style={{ color: 'var(--color-term-prompt-git)' }}>{'  💡 Tip: '}</span>
+              <Muted>{tip}</Muted>
+            </span>,
+          ),
+        );
+      }
+    }
+    out.push(blank());
+    out.push(
       line(
         <Muted>
           {ctx.lang === 'fr'
@@ -230,7 +246,8 @@ const help: TerminalCommand = {
             : 'Tip: use ↑/↓ for history and Tab for autocompletion.'}
         </Muted>,
       ),
-    ];
+    );
+    return out;
   },
 };
 
@@ -254,6 +271,12 @@ const HELP_DESCRIPTIONS: Record<string, { fr: string; en: string }> = {
   open: { fr: 'Ouvrir un lien (github|linkedin|mail)', en: 'Open a link (github|linkedin|mail)' },
   date: { fr: 'Date et heure', en: 'Current date/time' },
   echo: { fr: 'Affiche le texte', en: 'Echo the text' },
+  flip: { fr: 'Pile ou face', en: 'Flip a coin' },
+  dice: { fr: 'Lancer un dé', en: 'Roll a die' },
+  geo: { fr: 'Ma position géographique', en: 'My geographic position' },
+  binary: { fr: 'Encoder / décoder du binaire', en: 'Encode / decode binary' },
+  hash: { fr: 'Hash SHA-256 du texte', en: 'SHA-256 hash of text' },
+  joke: { fr: 'Blague de dev', en: 'Random dev joke' },
   neofetch: { fr: 'Infos système (clin d’œil)', en: 'System info (wink)' },
   matrix: { fr: 'Mode matrix', en: 'Matrix mode' },
   coffee: { fr: 'Pause café', en: 'Coffee break' },
@@ -262,12 +285,14 @@ const HELP_DESCRIPTIONS: Record<string, { fr: string; en: string }> = {
 const about: TerminalCommand = {
   name: 'about',
   descriptionKey: 'about',
+  tip: { fr: 'Affiche un résumé : qui je suis et ce que je fais.', en: 'Show a quick bio: who I am and what I do.' },
   run: aboutLines,
 };
 
 const whoami: TerminalCommand = {
   name: 'whoami',
   descriptionKey: 'whoami',
+  tip: { fr: 'Identité courte (nom + titre).', en: 'Short identity line (name + title).' },
   run: (ctx) => {
     const p = ctx.bundle?.profile;
     if (!p) return [text('guest')];
@@ -275,21 +300,48 @@ const whoami: TerminalCommand = {
   },
 };
 
-const skills: TerminalCommand = { name: 'skills', descriptionKey: 'skills', run: skillsLines };
+const skills: TerminalCommand = {
+  name: 'skills',
+  descriptionKey: 'skills',
+  tip: { fr: 'Liste mes compétences techniques regroupées par catégorie.', en: 'List technical skills grouped by category.' },
+  run: skillsLines,
+};
 const experience: TerminalCommand = {
   name: 'experience',
   descriptionKey: 'experience',
   aliases: ['xp', 'work'],
+  tip: { fr: 'Mes expériences pro, de la plus récente à la plus ancienne.', en: 'Work experience, most recent first.' },
   run: experienceLines,
 };
-const projects: TerminalCommand = { name: 'projects', descriptionKey: 'projects', run: projectsLines };
-const education: TerminalCommand = { name: 'education', descriptionKey: 'education', run: educationLines };
-const interests: TerminalCommand = { name: 'interests', descriptionKey: 'interests', run: interestsLines };
-const contact: TerminalCommand = { name: 'contact', descriptionKey: 'contact', run: contactLines };
+const projects: TerminalCommand = {
+  name: 'projects',
+  descriptionKey: 'projects',
+  tip: { fr: 'Projets personnels et freelance avec stack et liens.', en: 'Personal & freelance projects with stack and links.' },
+  run: projectsLines,
+};
+const education: TerminalCommand = {
+  name: 'education',
+  descriptionKey: 'education',
+  tip: { fr: 'Mon parcours académique.', en: 'My academic background.' },
+  run: educationLines,
+};
+const interests: TerminalCommand = {
+  name: 'interests',
+  descriptionKey: 'interests',
+  tip: { fr: "Centres d'intérêt et hobbies.", en: 'Hobbies and interests.' },
+  run: interestsLines,
+};
+const contact: TerminalCommand = {
+  name: 'contact',
+  descriptionKey: 'contact',
+  tip: { fr: 'Mes coordonnées : email, téléphone, GitHub, LinkedIn.', en: 'Contact info: email, phone, GitHub, LinkedIn.' },
+  run: contactLines,
+};
 
 const ls: TerminalCommand = {
   name: 'ls',
   descriptionKey: 'ls',
+  tip: { fr: 'Liste le contenu du dossier virtuel : `ls ~/projects`.', en: 'List entries in a virtual folder, e.g. `ls ~/projects`.' },
   run: (ctx) => {
     const target = ctx.args[0] ?? '~';
     const node = resolve(ctx.cwd, target);
@@ -321,6 +373,7 @@ const ls: TerminalCommand = {
 const cat: TerminalCommand = {
   name: 'cat',
   descriptionKey: 'cat',
+  tip: { fr: 'Affiche un fichier virtuel : `cat about.md`.', en: 'Print a virtual file, e.g. `cat about.md`.' },
   run: (ctx) => {
     if (!ctx.args[0]) {
       return [text(ctx.lang === 'fr' ? 'usage: cat <fichier>' : 'usage: cat <file>', 'stderr')];
@@ -348,18 +401,21 @@ const cat: TerminalCommand = {
 const pwd: TerminalCommand = {
   name: 'pwd',
   descriptionKey: 'pwd',
+  tip: { fr: 'Affiche le dossier virtuel courant.', en: 'Print the current virtual directory.' },
   run: (ctx) => [text(ctx.cwd)],
 };
 
 const clear: TerminalCommand = {
   name: 'clear',
   descriptionKey: 'clear',
+  tip: { fr: "Efface l'écran (raccourci : Ctrl+L).", en: 'Clear the screen (shortcut: Ctrl+L).' },
   run: () => ({ lines: [], clear: true }),
 };
 
 const lang: TerminalCommand = {
   name: 'lang',
   descriptionKey: 'lang',
+  tip: { fr: "Change la langue de l'interface : `lang fr` ou `lang en`.", en: 'Switch the UI language: `lang fr` or `lang en`.' },
   run: (ctx) => {
     const next = ctx.args[0]?.toLowerCase();
     if (next !== 'fr' && next !== 'en') {
@@ -373,6 +429,7 @@ const lang: TerminalCommand = {
 const theme: TerminalCommand = {
   name: 'theme',
   descriptionKey: 'theme',
+  tip: { fr: 'Bascule le thème : `theme dark` ou `theme light`.', en: 'Switch theme: `theme dark` or `theme light`.' },
   run: (ctx) => {
     const next = ctx.args[0]?.toLowerCase();
     if (next !== 'dark' && next !== 'light') {
@@ -386,6 +443,7 @@ const theme: TerminalCommand = {
 const download: TerminalCommand = {
   name: 'download',
   descriptionKey: 'download',
+  tip: { fr: 'Télécharge mon CV au format PDF : `download cv`.', en: 'Download my CV as PDF: `download cv`.' },
   run: (ctx) => {
     if (ctx.args[0] !== 'cv') {
       return [text('usage: download cv', 'stderr')];
@@ -407,6 +465,7 @@ const download: TerminalCommand = {
 const open: TerminalCommand = {
   name: 'open',
   descriptionKey: 'open',
+  tip: { fr: "Ouvre un lien dans un nouvel onglet : `open github|linkedin|mail`.", en: 'Open a link in a new tab: `open github|linkedin|mail`.' },
   run: (ctx) => {
     const target = ctx.args[0]?.toLowerCase();
     const p = ctx.bundle?.profile;
@@ -426,13 +485,211 @@ const open: TerminalCommand = {
 const dateCmd: TerminalCommand = {
   name: 'date',
   descriptionKey: 'date',
-  run: () => [text(new Date().toString())],
+  aliases: ['datetime', 'now', 'time'],
+  tip: { fr: 'Affiche la date et heure locale + UTC + fuseau.', en: 'Print local date/time, UTC time and your timezone.' },
+  run: (ctx) => {
+    const now = new Date();
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const locale = ctx.lang === 'fr' ? 'fr-FR' : 'en-US';
+    const local = now.toLocaleString(locale, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    return [
+      line(<span><Muted>{ctx.lang === 'fr' ? 'Local : ' : 'Local: '}</Muted><Success>{local}</Success></span>),
+      line(<span><Muted>{'UTC :   '}</Muted>{now.toUTCString()}</span>),
+      line(<span><Muted>{ctx.lang === 'fr' ? 'Fuseau :' : 'Zone:  '}</Muted>{' '}{tz}</span>),
+    ];
+  },
 };
 
 const echo: TerminalCommand = {
   name: 'echo',
   descriptionKey: 'echo',
+  tip: { fr: 'Répète le texte saisi : `echo hello world`.', en: 'Echo the given text: `echo hello world`.' },
   run: (ctx) => [text(ctx.args.join(' '))],
+};
+
+const flip: TerminalCommand = {
+  name: 'flip',
+  descriptionKey: 'flip',
+  aliases: ['coin', 'coinflip', 'pileface'],
+  tip: { fr: 'Lance une pièce à pile ou face. 50/50, promis 🎲.', en: 'Toss a coin — heads or tails. 50/50, promise 🎲.' },
+  run: (ctx) => {
+    const heads = Math.random() < 0.5;
+    const fr = heads ? 'Face' : 'Pile';
+    const en = heads ? 'Heads' : 'Tails';
+    const label = ctx.lang === 'fr' ? fr : en;
+    const emoji = heads ? '🪙' : '⚪';
+    return [
+      line(<span>{ctx.lang === 'fr' ? 'La pièce tourne…' : 'Flipping the coin…'}</span>),
+      line(<Success>{`${emoji}  ${label}!`}</Success>),
+    ];
+  },
+};
+
+const dice: TerminalCommand = {
+  name: 'dice',
+  descriptionKey: 'dice',
+  aliases: ['roll'],
+  tip: { fr: 'Lance un dé. Syntaxe : `dice` ou `dice 20` (faces).', en: 'Roll a die. Usage: `dice` or `dice 20` (sides).' },
+  run: (ctx) => {
+    const sides = Math.max(2, Math.min(1000, Number(ctx.args[0] ?? 6) | 0 || 6));
+    const value = 1 + Math.floor(Math.random() * sides);
+    return [line(<Success>{`🎲 d${sides} → ${value}`}</Success>)];
+  },
+};
+
+const GEO_TIMEOUT_MS = 10_000;
+
+const geo: TerminalCommand = {
+  name: 'geo',
+  descriptionKey: 'geo',
+  aliases: ['whereami', 'location'],
+  tip: {
+    fr: 'Affiche ta position géographique actuelle (autorisation requise).',
+    en: 'Show your current geographic position (browser permission required).',
+  },
+  run: (ctx) =>
+    new Promise<CommandResult>((resolveFn) => {
+      if (typeof navigator === 'undefined' || !navigator.geolocation) {
+        resolveFn([
+          line(
+            <span style={{ color: 'var(--color-term-error)' }}>
+              {ctx.lang === 'fr'
+                ? 'geo: géolocalisation non disponible dans ce navigateur.'
+                : 'geo: geolocation is not available in this browser.'}
+            </span>,
+            'stderr',
+          ),
+        ]);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude, accuracy } = pos.coords;
+          const mapUrl = `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=14/${latitude}/${longitude}`;
+          resolveFn([
+            line(<span><Muted>{ctx.lang === 'fr' ? 'Latitude  :' : 'Latitude:  '}</Muted> <Success>{latitude.toFixed(5)}</Success></span>),
+            line(<span><Muted>{ctx.lang === 'fr' ? 'Longitude :' : 'Longitude: '}</Muted> <Success>{longitude.toFixed(5)}</Success></span>),
+            line(<span><Muted>{ctx.lang === 'fr' ? 'Précision :' : 'Accuracy:  '}</Muted> ~{Math.round(accuracy)} m</span>),
+            line(<span>{ctx.lang === 'fr' ? 'Voir sur la carte : ' : 'Open in map: '}<Link href={mapUrl}>OpenStreetMap</Link></span>),
+          ]);
+        },
+        (err) => {
+          resolveFn([
+            line(
+              <span style={{ color: 'var(--color-term-error)' }}>
+                geo: {err.message || (ctx.lang === 'fr' ? 'autorisation refusée' : 'permission denied')}
+              </span>,
+              'stderr',
+            ),
+          ]);
+        },
+        { enableHighAccuracy: true, timeout: GEO_TIMEOUT_MS, maximumAge: 60_000 },
+      );
+    }),
+};
+
+const toBinary = (s: string): string =>
+  Array.from(new TextEncoder().encode(s))
+    .map((b) => b.toString(2).padStart(8, '0'))
+    .join(' ');
+
+const fromBinary = (s: string): string => {
+  const bits = s.replace(/[^01]/g, '');
+  if (bits.length === 0 || bits.length % 8 !== 0) {
+    throw new Error('binary: input length must be a multiple of 8 bits');
+  }
+  const bytes = new Uint8Array(bits.length / 8);
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(bits.slice(i * 8, i * 8 + 8), 2);
+  }
+  return new TextDecoder().decode(bytes);
+};
+
+const binary: TerminalCommand = {
+  name: 'binary',
+  descriptionKey: 'binary',
+  aliases: ['bin'],
+  tip: {
+    fr: 'Encode/décode du binaire. `binary encode hello` · `binary decode 01101000 ...`',
+    en: 'Encode/decode binary. `binary encode hello` · `binary decode 01101000 ...`',
+  },
+  run: (ctx) => {
+    const mode = ctx.args[0]?.toLowerCase();
+    const rest = ctx.args.slice(1).join(' ');
+    if (mode !== 'encode' && mode !== 'decode') {
+      return [text('usage: binary encode <text>  |  binary decode <bits>', 'stderr')];
+    }
+    if (!rest) {
+      return [text(ctx.lang === 'fr' ? 'binary: entrée vide' : 'binary: empty input', 'stderr')];
+    }
+    try {
+      const out = mode === 'encode' ? toBinary(rest) : fromBinary(rest);
+      return [
+        line(<Muted>{mode === 'encode' ? (ctx.lang === 'fr' ? 'Encodé →' : 'Encoded →') : (ctx.lang === 'fr' ? 'Décodé →' : 'Decoded →')}</Muted>),
+        line(<Success>{out}</Success>),
+      ];
+    } catch (e) {
+      return [text(`binary: ${(e as Error).message}`, 'stderr')];
+    }
+  },
+};
+
+const hash: TerminalCommand = {
+  name: 'hash',
+  descriptionKey: 'hash',
+  tip: {
+    fr: 'Calcule un hash SHA-256 du texte : `hash hello`.',
+    en: 'Compute a SHA-256 hash of the text: `hash hello`.',
+  },
+  run: async (ctx) => {
+    const input = ctx.args.join(' ');
+    if (!input) return [text('usage: hash <text>', 'stderr')];
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+    const hex = Array.from(new Uint8Array(buf))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    return [
+      line(<Muted>SHA-256 →</Muted>),
+      line(<Success>{hex}</Success>),
+    ];
+  },
+};
+
+const JOKES: { fr: string; en: string }[] = [
+  {
+    fr: "Pourquoi les développeurs détestent la nature ? Trop de bugs.",
+    en: 'Why do programmers hate nature? It has too many bugs.',
+  },
+  {
+    fr: 'Il y a 10 sortes de gens : ceux qui comprennent le binaire et les autres.',
+    en: 'There are 10 kinds of people: those who understand binary and those who don\'t.',
+  },
+  {
+    fr: 'Un dev passe par un bar. Puis 0 bars. Puis 2. Puis 0. Puis 1...',
+    en: 'A SQL query walks into a bar, sees two tables, and asks: "May I join you?"',
+  },
+  {
+    fr: "Pourquoi le JavaScript est-il triste ? Parce qu'il ne sait pas se gérer (undefined feelings).",
+    en: 'Why is JavaScript sad? Because it has undefined feelings.',
+  },
+];
+
+const joke: TerminalCommand = {
+  name: 'joke',
+  descriptionKey: 'joke',
+  tip: { fr: 'Affiche une blague de dev au hasard 😄.', en: 'Tell a random dev joke 😄.' },
+  run: (ctx) => {
+    const j = JOKES[Math.floor(Math.random() * JOKES.length)] ?? JOKES[0]!;
+    return [line(<Accent>{j[ctx.lang]}</Accent>)];
+  },
 };
 
 const sudo: TerminalCommand = {
@@ -569,6 +826,12 @@ export const COMMANDS: Record<string, TerminalCommand> = Object.fromEntries(
     open,
     dateCmd,
     echo,
+    flip,
+    dice,
+    geo,
+    binary,
+    hash,
+    joke,
     sudo,
     neofetch,
     matrix,

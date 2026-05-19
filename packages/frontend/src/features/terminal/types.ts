@@ -30,6 +30,8 @@ export type TerminalCommand = {
   name: string;
   /** Short, one-line description (i18n key path). */
   descriptionKey: string;
+  /** Localized tip describing what the command does and how to use it. */
+  tip?: { fr: string; en: string };
   /** Hidden from `help` if true (used for easter eggs and aliases). */
   hidden?: boolean;
   /** Aliases that resolve to this command. */

@@ -3,6 +3,7 @@
 // boot sequence that runs once on mount.
 
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { Banner } from './Banner';
 import { useTranslation } from 'react-i18next';
 import type { PortfolioBundle, Lang } from '@portfolio/shared';
 import { useTerminal } from '@/features/terminal/useTerminal';
@@ -22,6 +23,7 @@ export const Terminal = ({ bundle, initialCommandRef }: Props) => {
   const t = useTerminal({ bundle, lang, setLang });
   const scrollRef = useRef<HTMLDivElement>(null);
   const [booted, setBooted] = useState(false);
+  const [focused, setFocused] = useState(true);
 
   // Boot sequence runs once when bundle is available.
   useEffect(() => {
@@ -29,6 +31,11 @@ export const Terminal = ({ bundle, initialCommandRef }: Props) => {
     const now = new Date();
     const stamp = now.toString().slice(0, 24);
     t.append([
+      {
+        id: `boot-banner-${Date.now()}`,
+        kind: 'system',
+        content: <Banner />,
+      },
       {
         id: `boot-${Date.now()}`,
         kind: 'system',
@@ -109,25 +116,38 @@ export const Terminal = ({ bundle, initialCommandRef }: Props) => {
       ))}
 
       {/* Active prompt */}
-      <div className="flex items-baseline gap-0 whitespace-pre">
+      <div className="flex items-baseline gap-0 whitespace-pre relative">
         <Prompt cwd={t.cwd} />
-        <input
-          ref={t.inputRef}
-          value={t.input}
-          onChange={(e) => t.setInput(e.target.value)}
-          onKeyDown={onKeyDown}
-          autoFocus
-          spellCheck={false}
-          autoComplete="off"
-          autoCapitalize="off"
-          className="flex-1 bg-transparent outline-none border-none"
-          style={{
-            fontFamily: 'var(--font-mono)',
-            color: 'var(--color-term-fg)',
-            caretColor: 'var(--color-term-fg)',
-          }}
-          aria-label="terminal input"
-        />
+        <span className="relative flex-1 inline-flex items-baseline">
+          <input
+            ref={t.inputRef}
+            value={t.input}
+            onChange={(e) => t.setInput(e.target.value)}
+            onKeyDown={onKeyDown}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            autoFocus
+            spellCheck={false}
+            autoComplete="off"
+            autoCapitalize="off"
+            className="term-input flex-1 bg-transparent"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--color-term-fg)',
+              width: '100%',
+            }}
+            aria-label="terminal input"
+          />
+          <span
+            aria-hidden
+            className={`term-cursor ${focused ? '' : 'is-idle'}`}
+            style={{
+              position: 'absolute',
+              left: `${t.input.length}ch`,
+              top: 0,
+            }}
+          />
+        </span>
       </div>
 
       {t.easterEgg === 'matrix' && <MatrixOverlay onExit={t.dismissEasterEgg} />}
