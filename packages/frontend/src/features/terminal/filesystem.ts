@@ -26,7 +26,7 @@ export const resolve = (cwd: string, target: string): VFile | VDir | null => {
   let node: VFile | VDir = root;
   for (const p of parts) {
     if (node.type !== 'dir') return null;
-    const next = node.entries[p];
+    const next: VFile | VDir | undefined = node.entries[p];
     if (!next) return null;
     node = next;
   }
